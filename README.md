@@ -6,6 +6,39 @@
   All in a secure way where <i>you control the data</i>.
 </p>
 
+---
+
+## 🏢 Enterprise Edition
+
+This fork includes **Enterprise Edition** features for organizational use:
+
+| Feature | Description |
+|---------|-------------|
+| **MySQL Backend** | Scalable MySQL database instead of SQLite |
+| **Multi-Employee Tracking** | Track activity across multiple employees and devices |
+| **Central Server** | All employee data collected on a central server |
+| **Admin Dashboard** | Employee selector to view individual activity |
+| **Remote Deployment** | Easy deployment to employee machines |
+
+### Quick Start (Enterprise)
+
+```bash
+# 1. Setup MySQL database
+mysql -u root -p -e "CREATE DATABASE activitywatch_local; CREATE USER 'awuser'@'localhost' IDENTIFIED BY 'awpassword'; GRANT ALL ON activitywatch_local.* TO 'awuser'@'localhost';"
+
+# 2. Install dependencies
+pip install flask flask-sqlalchemy flask-cors pymysql requests pywin32
+
+# 3. Start the enterprise server
+python enterprise/mysql_server.py
+
+# 4. Deploy to employee machines (see enterprise/employee-deploy/)
+```
+
+📁 See `enterprise/` folder for server, client, and deployment files.
+
+---
+
 <p align="center">
   <a href="https://twitter.com/ActivityWatchIt">
     <img title="Twitter follow" src="https://img.shields.io/twitter/follow/ActivityWatchIt.svg?style=social&label=Follow"/>

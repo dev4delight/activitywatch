@@ -11,12 +11,56 @@ htmlcov
 # Editor/IDEs
 .idea
 *.swp
+.vscode
 
 # Python
 *venv*
 __pycache__
 .python-version
+*.pyc
 
 # Misc
 .*cache
 .DS_Store
+
+# Claude Code temp files
+.claude/
+tmpclaude-*
+
+# Logs and temporary files
+*.log
+request_log.txt
+nul
+
+# Large binary files
+*.zip
+*.exe
+*.msi
+
+# Debug and test scripts (keep only main test files)
+debug_*.py
+cleanup_*.py
+fix_*.py
+check_*.py
+simple_test.py
+mysql_test.py
+setup_*.py
+
+# One-time setup files
+*.sql
+download_mysql.ps1
+install.cmd
+
+# MySQL data directory (if local)
+mysql-data/
+mysql/
+
+# Local configuration
+config.local.py
+.env
+
+# Submodule working directories (use submodules instead)
+aw-webui/
+aw-release/
+
+# Keep aw-client-sync as it's our custom code

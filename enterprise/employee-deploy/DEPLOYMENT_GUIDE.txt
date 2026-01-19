@@ -1,0 +1,144 @@
+============================================================
+  ACTIVITYWATCH EMPLOYEE DEPLOYMENT GUIDE
+============================================================
+
+This guide explains how to deploy ActivityWatch to employee
+machines and collect their activity data on a central server.
+
+============================================================
+PART 1: SERVER SETUP (Admin Machine)
+============================================================
+
+1. Find your server's IP address:
+   - Open Command Prompt
+   - Run: ipconfig
+   - Note your IPv4 Address (e.g., 192.168.1.100)
+
+2. Update the server to accept remote connections:
+   - The server must listen on 0.0.0.0 (all interfaces)
+   - See "Server Configuration" section below
+
+3. Open Windows Firewall for port 5601:
+   - Open Windows Firewall with Advanced Security
+   - Click "Inbound Rules" -> "New Rule"
+   - Select "Port" -> Next
+   - Select "TCP" and enter port: 5601 -> Next
+   - Select "Allow the connection" -> Next
+   - Check all profiles (Domain, Private, Public) -> Next
+   - Name: "ActivityWatch Server" -> Finish
+
+4. Start the server:
+   python mysql_server.py
+
+5. Verify the server is accessible:
+   - From another machine, open browser
+   - Go to: http://YOUR_SERVER_IP:5601/api/0/info
+   - You should see server info JSON
+
+============================================================
+PART 2: EMPLOYEE DEPLOYMENT
+============================================================
+
+Option A: Manual Installation (Per Machine)
+-------------------------------------------
+1. Copy the employee-deploy folder to a USB drive or network share
+
+2. On each employee machine:
+   a. Copy the folder to the machine
+   b. Install Python 3.8+ (if not installed)
+      - Download from https://www.python.org/downloads/
+      - IMPORTANT: Check "Add Python to PATH" during install
+   c. Run install.bat
+   d. Run configure.bat and enter:
+      - Server IP address
+      - Employee ID (unique per employee)
+      - Employee name
+      - Department
+   e. Double-click the ActivityWatch shortcut on desktop
+
+Option B: Network/Domain Deployment
+-----------------------------------
+1. Create a network share with the employee-deploy folder
+
+2. Create a login script or GPO that runs:
+   \\server\share\employee-deploy\silent_install.bat
+
+3. Pre-configure the watcher with correct server IP
+
+============================================================
+PART 3: FILES IN THIS PACKAGE
+============================================================
+
+aw_employee_watcher.py  - Main watcher script
+install.bat             - Interactive installer
+configure.bat           - Configuration helper
+uninstall.bat           - Uninstaller
+silent_install.bat      - Silent install for automation
+DEPLOYMENT_GUIDE.txt    - This file
+
+============================================================
+PART 4: CONFIGURATION OPTIONS
+============================================================
+
+Edit aw_employee_watcher.py CONFIG section:
+
+CONFIG = {
+    "SERVER_URL": "http://192.168.1.100:5601",  # Central server
+    "EMPLOYEE_ID": "emp001",      # Unique employee ID
+    "EMPLOYEE_NAME": "John Doe",  # Employee name
+    "EMPLOYEE_EMAIL": "",         # Optional email
+    "DEPARTMENT": "Engineering",  # Department
+
+    "WINDOW_POLL_INTERVAL": 5,    # Window check interval (seconds)
+    "AFK_POLL_INTERVAL": 5,       # AFK check interval (seconds)
+    "AFK_TIMEOUT": 180,           # Idle time before AFK (seconds)
+}
+
+============================================================
+PART 5: VIEWING EMPLOYEE DATA
+============================================================
+
+1. Open the ActivityWatch web interface:
+   http://YOUR_SERVER_IP:5601
+
+2. Go to the Activity view
+
+3. Use the Employee dropdown (next to date selector)
+   to switch between employees
+
+4. View admin dashboard at:
+   http://YOUR_SERVER_IP:5601/#/admin
+
+============================================================
+PART 6: TROUBLESHOOTING
+============================================================
+
+Problem: Watcher can't connect to server
+Solution:
+- Check server IP is correct
+- Check firewall allows port 5601
+- Check server is running
+- Test: ping SERVER_IP
+
+Problem: No data appearing
+Solution:
+- Check watcher is running (look for python in Task Manager)
+- Check log file: aw_watcher_HOSTNAME.log
+- Verify buckets exist at /api/0/buckets/
+
+Problem: Employee not in dropdown
+Solution:
+- Employee must have at least one device registered
+- Check /api/0/admin/employees to see all employees
+
+============================================================
+PART 7: SECURITY CONSIDERATIONS
+============================================================
+
+1. Use HTTPS in production (requires SSL certificate)
+2. Set up authentication for the admin API
+3. Use a VPN for remote employees
+4. Consider privacy policies and employee consent
+5. Limit server access to trusted networks
+
+============================================================
