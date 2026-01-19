@@ -93,35 +93,45 @@
 
     if (newEmployeeId === selectedEmployeeId) return;
 
-    selectedEmployeeId = newEmployeeId;
+    if (newEmployeeId) {
+      const emp = employees.find(e => e.id === newEmployeeId);
 
-    if (selectedEmployeeId) {
-      localStorage.setItem('selectedEmployeeId', selectedEmployeeId);
-    } else {
-      localStorage.removeItem('selectedEmployeeId');
-    }
+      if (!emp || !emp.devices || emp.devices.length === 0) {
+        const empName = emp ? (emp.name || emp.id) : newEmployeeId;
+        alert(`This employee has no registered device.\n\n"${empName}" has not connected any device to ActivityWatch yet.`);
 
-    console.log('Employee selected:', selectedEmployeeId || 'All');
-
-    // Find the selected employee and navigate to their device's hostname
-    if (selectedEmployeeId) {
-      const emp = employees.find(e => e.id === selectedEmployeeId);
-      if (emp && emp.devices && emp.devices.length > 0) {
-        const hostname = emp.devices[0].hostname || emp.devices[0].id;
-        const currentHash = window.location.hash || '';
-
-        // Parse current activity URL and replace hostname
-        const activityMatch = currentHash.match(/#\/activity\/([^\/]+)(\/.*)?/);
-        if (activityMatch) {
-          const restOfPath = activityMatch[2] || '/day';
-          window.location.hash = `#/activity/${hostname}${restOfPath}`;
-          return;
+        const dropdown = document.getElementById('employee-activity-dropdown');
+        if (dropdown) {
+          dropdown.value = selectedEmployeeId || '';
         }
+        return;
       }
-    }
 
-    // If no specific navigation, just reload to refresh with new filter
-    window.location.reload();
+      selectedEmployeeId = newEmployeeId;
+      localStorage.setItem('selectedEmployeeId', selectedEmployeeId);
+      console.log('Employee selected:', selectedEmployeeId);
+
+      // Navigate to the employee's device hostname
+      const hostname = emp.devices[0].hostname || emp.devices[0].id;
+      const currentHash = window.location.hash || '';
+
+      // Parse current activity URL and replace hostname
+      const activityMatch = currentHash.match(/#\/activity\/([^\/]+)(\/.*)?/);
+      if (activityMatch) {
+        const restOfPath = activityMatch[2] || '/day';
+        window.location.hash = `#/activity/${hostname}${restOfPath}`;
+        return;
+      }
+
+      // Fallback: reload page
+      window.location.reload();
+    } else {
+      // "All Employees" selected - clear selection and reload
+      selectedEmployeeId = '';
+      localStorage.removeItem('selectedEmployeeId');
+      console.log('Employee selected: All');
+      window.location.reload();
+    }
   }
 
   // Find and insert the selector next to the date input in Activity view
