@@ -460,7 +460,16 @@ def heartbeat(bucket_id):
             return jsonify(last_event.to_dict())
 
     # Create new event (data changed or outside pulsetime window)
-    # First check if an event with this exact timestamp already exists (prevent race condition duplicates)
+    # Backfill the previous event's duration to extend to this new event's start
+    if last_event:
+        last_event_end = last_event.timestamp + timedelta(seconds=last_event.duration)
+        gap_seconds = (timestamp - last_event_end).total_seconds()
+        # If there's a gap and it's within reasonable range, extend the previous event
+        if 0 < gap_seconds <= pulsetime:
+            new_duration = (timestamp - last_event.timestamp).total_seconds()
+            last_event.duration = new_duration
+
+    # Check if an event with this exact timestamp already exists (prevent race condition duplicates)
     existing = Event.query.filter_by(bucket_id=bucket_id, timestamp=timestamp).first()
     if existing:
         # Update existing event's data if different, otherwise just return it

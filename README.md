@@ -24,15 +24,17 @@ This fork includes **Enterprise Edition** features for organizational use:
 
 ```bash
 # 1. Setup MySQL database
-mysql -u root -p -e "CREATE DATABASE activitywatch_local; CREATE USER 'awuser'@'localhost' IDENTIFIED BY 'awpassword'; GRANT ALL ON activitywatch_local.* TO 'awuser'@'localhost';"
+mysql -u root -p -e "CREATE DATABASE activitywatch_enterprise; CREATE USER 'your_username'@'localhost' IDENTIFIED BY 'your_password'; GRANT ALL ON activitywatch_enterprise.* TO 'your_username'@'localhost';"
 
 # 2. Install dependencies
 pip install flask flask-sqlalchemy flask-cors pymysql requests pywin32
 
-# 3. Start the enterprise server
+# 3. Configure database credentials in enterprise/mysql_server.py
+
+# 4. Start the enterprise server
 python enterprise/mysql_server.py
 
-# 4. Deploy to employee machines (see enterprise/employee-deploy/)
+# 5. Deploy to employee machines (see enterprise/employee-deploy/)
 ```
 
 📁 See `enterprise/` folder for server, client, and deployment files.

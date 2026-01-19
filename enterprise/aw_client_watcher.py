@@ -27,6 +27,8 @@ class WindowWatcher:
     """Watches active window using heartbeat mechanism (like aw-watcher-window)"""
 
     def __init__(self):
+        self.last_window = None
+        self.last_timestamp = None
         self._init_bucket()
 
     def _init_bucket(self):
@@ -88,8 +90,7 @@ class WindowWatcher:
             try:
                 window = self.get_active_window()
 
-                # Send heartbeat with duration=0 (server calculates actual duration)
-                # This is how ActivityWatch works - heartbeats are merged by the server
+                # Send heartbeat - server handles duration calculation
                 self.send_heartbeat(window)
 
                 time.sleep(WINDOW_POLL_INTERVAL)
@@ -99,19 +100,17 @@ class WindowWatcher:
                 time.sleep(10)
 
     def send_heartbeat(self, window_data):
-        """Send window heartbeat to server (duration=0, server calculates)"""
+        """Send window heartbeat to server"""
         try:
-            # Heartbeat event always has duration=0
-            # Server will calculate duration based on time since last heartbeat
             event = {
                 "employee_id": EMPLOYEE_ID,
                 "device_id": DEVICE_ID,
                 "data": window_data,
-                "duration": 0,  # Always 0 for heartbeats - server calculates
+                "duration": 0,
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }
 
-            # Use heartbeat endpoint with pulsetime = poll_time * 2 (generous margin for processing delays)
+            # Use heartbeat endpoint with pulsetime = poll_time * 2
             pulsetime = WINDOW_POLL_INTERVAL * 2.0
             response = requests.post(
                 f"{SERVER_URL}/api/0/buckets/aw-watcher-window_{DEVICE_ID}/heartbeat?pulsetime={pulsetime}",
@@ -120,7 +119,7 @@ class WindowWatcher:
             )
 
             if response.status_code == 200:
-                pass  # Normal heartbeat, don't log every time
+                pass  # Normal heartbeat
             else:
                 logger.warning(f"Heartbeat failed: {response.status_code}")
 
